@@ -1,0 +1,20 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Validate files
+        run: test -f app/index.html && test -f docker/Dockerfile
+      - name: Build Docker image
+        run: docker build -f docker/Dockerfile -t university-web .
+      - name: Test container
+        run: |
+          docker run -d -p 8081:80 --name web university-web
+          sleep 5
+          curl -f http://localhost:8081
